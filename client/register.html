@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Register</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="auth">
+  <div class="auth-card">
+    <div class="auth-title">Create an account</div>
+    <div class="auth-subtitle">Choose a role to access the right dashboard</div>
+
+    <form id="regForm">
+      <input name="name" placeholder="Full name"><br>
+      <input name="email" placeholder="Email"><br>
+      <input name="password" type="password" placeholder="Password"><br>
+      <select name="role">
+        <option value="employee">Employee</option>
+        <option value="employer">Employer</option>
+      </select><br>
+      <button class="primary" type="submit">Register</button>
+    </form>
+
+    <p style="margin-top:12px; font-size:14px;">
+      Already have an account?
+      <a href="login.html" style="color:#2563eb; text-decoration:none;">Log in instead</a>
+    </p>
+  </div>
+
+  <script>
+    document.getElementById("regForm").addEventListener("submit", async e => {
+      e.preventDefault();
+      const f = e.target;
+      const body = {
+        name: f.name.value,
+        email: f.email.value,
+        password: f.password.value,
+        role: f.role.value
+      };
+      const res = await fetch("http://localhost:3000/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        alert(data.message || "Error");
+        return;
+      }
+      const loginRes = await fetch("http://localhost:3000/api/auth/login",{
+        method:"POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({email: creds.email, password: creds.password })
+      });
+      const loginData = await loginRes.json();
+      if(!loginRes.ok)
+      {
+        alert(loginData.message || "Login error");
+        return;
+      }
+      localStorage.setItem("token", loginData.token);
+      localStorage.setItem("role", loginData.role);
+
+      if(loginData.role === "employer")
+      {
+        window.location = "employer-dashboard.html";
+      }
+      else
+      {
+        window.location = "employee-dashboard.html";
+      }
+      alert("Registered! Please log in.");
+      window.location = "login.html";
+    });
+  </script>
+</body>
+</html>

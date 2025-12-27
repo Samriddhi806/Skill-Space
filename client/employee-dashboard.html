@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Employee Dashboard</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="navbar">
+    <h1>Employee Dashboard</h1>
+    <button onclick="logout()">Logout</button>
+  </header>
+
+  <main class="page">
+    <section class="dashboard-grid">
+      <div class="card">
+        <h3>My Tasks</h3>
+        <ul id="myTasks" class="task-list"></ul>
+      </div>
+
+      <div class="card">
+        <h3>Quick Actions</h3>
+        <p style="font-size:14px; color:#6b7280; margin-bottom:8px;">
+          Update your task status as you work.
+        </p>
+        <p style="font-size:13px; color:#9ca3af;">
+          Select a task below to mark it <b>In progress</b> or <b>Done</b>.
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const token = localStorage.getItem("token");
+    const role = localStorage.getItem("role");
+    if (!token || role !== "employee") {
+      window.location = "login.html";
+    }
+
+    function logout() {
+      localStorage.clear();
+      window.location = "login.html";
+    }
+
+    async function loadMyTasks() {
+      const res = await fetch("http://localhost:3000/api/tasks/my", {
+        headers: { "Authorization": "Bearer " + token }
+      });
+      const tasks = await res.json();
+      const ul = document.getElementById("myTasks");
+      ul.innerHTML = "";
+      tasks.forEach(t => {
+        const li = document.createElement("li");
+        li.innerHTML = `
+          <div>
+            <strong>${t.title}</strong> <span style="color:#6b7280;">[${t.status}]</span><br>
+            <span style="font-size:13px; color:#9ca3af;">Task #${t.id}</span>
+          </div>
+          <div class="task-actions">
+            <button onclick="updateStatus(${t.id}, 'in_progress')">In progress</button>
+            <button onclick="updateStatus(${t.id}, 'done')">Done</button>
+          </div>`;
+        li.style.display = "flex";
+        li.style.justifyContent = "space-between";
+        li.style.alignItems = "center";
+        ul.appendChild(li);
+      });
+    }
+
+    async function updateStatus(id, status) {
+      const res = await fetch(`http://localhost:3000/api/tasks/${id}/status`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + token
+        },
+        body: JSON.stringify({ status })
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        alert(data.message || "Error");
+      } else {
+        loadMyTasks();
+      }
+    }
+
+    loadMyTasks();
+  </script>
+</body>
+</html>

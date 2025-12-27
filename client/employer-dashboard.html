@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Employer Dashboard</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="navbar">
+    <h1>Employer Dashboard</h1>
+    <button onclick="logout()">Logout</button>
+  </header>
+
+  <main class="page">
+    <section class="dashboard-grid">
+      <!-- Create task card -->
+      <div class="card">
+        <h3>Create Task</h3>
+        <p style="font-size:13px; color:#6b7280; margin-bottom:10px;">
+          Assign a new task to an employee by their ID.
+        </p>
+        <form id="taskForm">
+          <input name="title" placeholder="Title"><br>
+          <textarea name="description" placeholder="Description"></textarea><br>
+          <input name="assignedToUserId" placeholder="Employee ID (Mongo _id)"><br>
+          <button class="primary" type="submit">Create</button>
+        </form>
+      </div>
+
+      <!-- All tasks card -->
+      <div class="card">
+        <h3>All Tasks</h3>
+        <p id="taskSummary" style="font-size:13px; color:#9ca3af; margin-bottom:8px;">
+          Loading tasks...
+        </p>
+        <ul id="taskList" class="task-list"></ul>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const token = localStorage.getItem("token");
+    const role  = localStorage.getItem("role");
+
+    if (!token || role !== "employer") {
+      window.location = "login.html";
+    }
+
+    function logout() {
+      localStorage.clear();
+      window.location = "login.html";
+    }
+
+    document.getElementById("taskForm").addEventListener("submit", async e => {
+      e.preventDefault();
+      const f = e.target;
+      const body = {
+        title: f.title.value,
+        description: f.description.value,
+        // with Mongo/Mongoose this should be a string _id, so no parseInt
+        assignedToUserId: f.assignedToUserId.value
+      };
+
+      const res = await fetch("http://localhost:3000/api/tasks", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + token
+        },
+        body: JSON.stringify(body)
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        alert(data.message || "Error");
+      } else {
+        f.reset();
+        loadTasks();
+      }
+    });
+
+    async function loadTasks() {
+      const res = await fetch("http://localhost:3000/api/tasks", {
+        headers: { "Authorization": "Bearer " + token }
+      });
+      const tasks = await res.json();
+
+      const summary = document.getElementById("taskSummary");
+      summary.textContent = `${tasks.length} task(s) total`;
+
+      const list = document.getElementById("taskList");
+      list.innerHTML = "";
+      tasks.forEach(t => {
+        const li = document.createElement("li");
+        li.textContent =
+          `#${t._id || t.id} ${t.title} -> Emp ${t.assignedToUserId} [${t.status}]`;
+        list.appendChild(li);
+      });
+    }
+
+    loadTasks();
+  </script>
+</body>
+</html>
