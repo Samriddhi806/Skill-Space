@@ -6,42 +6,73 @@
 </head>
 <body>
   <header class="navbar">
-    <h1>Employer Dashboard</h1>
+    <h1>Admin Dashboard</h1>
     <button onclick="logout()">Logout</button>
   </header>
 
+  <!-- NEW: Stats Cards -->
+  <div class="stats-grid" style="display:flex; gap:20px; margin:20px 0; padding:0 20px;">
+    <div style="background:#fef3c7; padding:20px; border-radius:12px; flex:1; text-align:center;">
+      <h3 style="color:#d97706; margin:0 0 10px 0;">Tests Created</h3>
+      <span id="tests-created" style="font-size:28px; font-weight:bold; color:#b45309;">0</span>
+    </div>
+    <div style="background:#f3f4f6; padding:20px; border-radius:12px; flex:1; text-align:center;">
+      <h3 style="color:#6b7280; margin:0 0 10px 0;">Employees</h3>
+      <span id="employee-count" style="font-size:28px; font-weight:bold; color:#374151;">0</span>
+    </div>
+  </div>
+
   <main class="page">
     <section class="dashboard-grid">
-      <!-- Create task card -->
+      <!-- Create Test Card -->
       <div class="card">
-        <h3>Create Task</h3>
+        <h3>Create Test</h3>
         <p style="font-size:13px; color:#6b7280; margin-bottom:10px;">
-          Assign a new task to an employee by their ID.
+          Create a new test and optionally assign to employees.
         </p>
-        <form id="taskForm">
-          <input name="title" placeholder="Title"><br>
-          <textarea name="description" placeholder="Description"></textarea><br>
-          <input name="assignedToUserId" placeholder="Employee ID (Mongo _id)"><br>
-          <button class="primary" type="submit">Create</button>
+        <form id="testForm">
+          <input name="title" placeholder="Test Title" required><br><br>
+          <textarea name="description" placeholder="Test Description" rows="3"></textarea><br><br>
+          
+          <!-- NEW: Questions Section -->
+          <div id="questions-container">
+            <div class="question-group">
+              <input name="q1-question" placeholder="Question 1" required>
+              <input name="q1-a" placeholder="A)" required>
+              <input name="q1-b" placeholder="B)" required>
+              <input name="q1-c" placeholder="C)" required>
+              <input name="q1-d" placeholder="D)" required>
+              <select name="q1-correct">
+                <option value="A">Correct: A</option>
+                <option value="B">Correct: B</option>
+                <option value="C">Correct: C</option>
+                <option value="D">Correct: D</option>
+              </select>
+            </div>
+          </div>
+          <button type="button" onclick="addQuestion()" style="background:#6b7280;color:white;">+ Add Question</button><br><br>
+          
+          <input name="assignedToUserId" placeholder="Employee ID (optional)"><br>
+          <button class="primary" type="submit">Create & Assign Test</button>
         </form>
       </div>
 
-      <!-- All tasks card -->
+      <!-- Tests + Leaderboard Card -->
       <div class="card">
-        <h3>All Tasks</h3>
-        <p id="taskSummary" style="font-size:13px; color:#9ca3af; margin-bottom:8px;">
-          Loading tasks...
+        <h3>My Tests & Leaderboards</h3>
+        <p id="testSummary" style="font-size:13px; color:#9ca3af; margin-bottom:8px;">
+          Loading tests...
         </p>
-        <ul id="taskList" class="task-list"></ul>
+        <ul id="testList" class="task-list"></ul>
       </div>
     </section>
   </main>
 
   <script>
     const token = localStorage.getItem("token");
-    const role  = localStorage.getItem("role");
+    const role = localStorage.getItem("role");
 
-    if (!token || role !== "employer") {
+    if (!token || role !== "admin") {  // ✅ Changed to "admin"
       window.location = "login.html";
     }
 
@@ -50,17 +81,56 @@
       window.location = "login.html";
     }
 
-    document.getElementById("taskForm").addEventListener("submit", async e => {
+    let questionCount = 1;
+
+    function addQuestion() {
+      questionCount++;
+      const container = document.getElementById("questions-container");
+      const div = document.createElement("div");
+      div.className = "question-group";
+      div.innerHTML = `
+        <input name="q${questionCount}-question" placeholder="Question ${questionCount}" required>
+        <input name="q${questionCount}-a" placeholder="A)" required>
+        <input name="q${questionCount}-b" placeholder="B)" required>
+        <input name="q${questionCount}-c" placeholder="C)" required>
+        <input name="q${questionCount}-d" placeholder="D)" required>
+        <select name="q${questionCount}-correct">
+          <option value="A">Correct: A</option>
+          <option value="B">Correct: B</option>
+          <option value="C">Correct: C</option>
+          <option value="D">Correct: D</option>
+        </select>
+      `;
+      container.appendChild(div);
+    }
+
+    // UPDATED: Create test form
+    document.getElementById("testForm").addEventListener("submit", async e => {
       e.preventDefault();
       const f = e.target;
+      
+      // Collect questions
+      const questions = [];
+      for (let i = 1; i <= questionCount; i++) {
+        const q = {
+          question: f[`q${i}-question`]?.value,
+          option_a: f[`q${i}-a`]?.value,
+          option_b: f[`q${i}-b`]?.value,
+          option_c: f[`q${i}-c`]?.value,
+          option_d: f[`q${i}-d`]?.value,
+          correct_option: f[`q${i}-correct`]?.value
+        };
+        if (q.question) questions.push(q);
+      }
+
       const body = {
         title: f.title.value,
         description: f.description.value,
-        // with Mongo/Mongoose this should be a string _id, so no parseInt
-        assignedToUserId: f.assignedToUserId.value
+        questions,
+        assignedToUserId: f.assignedToUserId.value || null
       };
 
-      const res = await fetch("http://localhost:3000/api/tasks", {
+      const res = await fetch("http://localhost:3000/api/tests", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -68,35 +138,98 @@
         },
         body: JSON.stringify(body)
       });
+      
       const data = await res.json();
       if (!res.ok) {
-        alert(data.message || "Error");
+        alert(data.message || "Error creating test");
       } else {
         f.reset();
-        loadTasks();
+        questionCount = 1;
+        document.getElementById("questions-container").innerHTML = `
+          <div class="question-group">
+            <input name="q1-question" placeholder="Question 1" required>
+            <input name="q1-a" placeholder="A)" required>
+            <input name="q1-b" placeholder="B)" required>
+            <input name="q1-c" placeholder="C)" required>
+            <input name="q1-d" placeholder="D)" required>
+            <select name="q1-correct">
+              <option value="A">Correct: A</option>
+              <option value="B">Correct: B</option>
+              <option value="C">Correct: C</option>
+              <option value="D">Correct: D</option>
+            </select>
+          </div>
+        `;
+        loadTests();
       }
     });
 
-    async function loadTasks() {
-      const res = await fetch("http://localhost:3000/api/tasks", {
-        headers: { "Authorization": "Bearer " + token }
-      });
-      const tasks = await res.json();
+    // UPDATED: Load tests + leaderboards
+    async function loadTests() {
+      try {
+        // Get admin's tests
+        const testsRes = await fetch("http://localhost:3000/api/tests", {
+          headers: { "Authorization": "Bearer " + token }
+        });
+        const tests = await testsRes.json();
 
-      const summary = document.getElementById("taskSummary");
-      summary.textContent = `${tasks.length} task(s) total`;
+        // Get employee count
+        const employeesRes = await fetch("http://localhost:3000/api/users?role=employee", {
+          headers: { "Authorization": "Bearer " + token }
+        });
+        const employees = await employeesRes.json();
 
-      const list = document.getElementById("taskList");
-      list.innerHTML = "";
-      tasks.forEach(t => {
-        const li = document.createElement("li");
-        li.textContent =
-          `#${t._id || t.id} ${t.title} -> Emp ${t.assignedToUserId} [${t.status}]`;
-        list.appendChild(li);
-      });
+        // Update stats
+        document.getElementById('tests-created').textContent = tests.length;
+        document.getElementById('employee-count').textContent = employees.length;
+        document.getElementById('testSummary').textContent = `${tests.length} test(s) created`;
+
+        // Display tests
+        const list = document.getElementById("testList");
+        list.innerHTML = "";
+        
+        for (const test of tests) {
+          // Get leaderboard for this test
+          const leaderboardRes = await fetch(`http://localhost:3000/api/leaderboard/${test._id}`, {
+            headers: { "Authorization": "Bearer " + token }
+          });
+          const leaderboard = await leaderboardRes.json();
+
+          const li = document.createElement("li");
+          li.innerHTML = `
+            <div>
+              <strong style="color:#1f2937;">${test.title}</strong><br>
+              <small style="color:#6b7280;">${test.description?.substring(0,50)}...</small><br>
+              <span style="color:#10b981;">${leaderboard.length} submissions</span>
+            </div>
+            <div style="text-align:right;">
+              <details>
+                <summary>Leaderboard (Top 3)</summary>
+                <ul style="margin:5px 0; padding-left:20px;">
+                  ${leaderboard.slice(0,3).map(l => `<li>${l.name}: ${l.score}</li>`).join('') || '<li>No submissions yet</li>'}
+                </ul>
+              </details>
+            </div>
+          `;
+          li.style.display = "flex";
+          li.style.justifyContent = "space-between";
+          li.style.alignItems = "flex-start";
+          li.style.padding = "16px";
+          li.style.borderBottom = "1px solid #e5e7eb";
+          list.appendChild(li);
+        }
+      } catch (error) {
+        console.error('Error loading tests:', error);
+      }
     }
 
-    loadTasks();
+    loadTests();
   </script>
+
+  <style>
+    .question-group { margin-bottom: 15px; padding: 10px; border: 1px solid #e5e7eb; border-radius: 6px; }
+    .question-group input, .question-group select { width: 100%; margin-bottom: 5px; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; }
+  </style>
 </body>
+
 </html>

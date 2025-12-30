@@ -1,6 +1,8 @@
 const express = require("express");
 const Task = require("../models/Task");
 const { authMiddleware } = require("./Auth");
+const authenticate = require('../middleware/auth');
+
 
 
 
@@ -48,6 +50,13 @@ router.patch("/:id/status", authMiddleware, async (req, res) => {
   const task = await Task.updateStatus(parseInt(req.params.id, 10), status);
   if (!task) return res.status(404).json({ message: "Task not found" });
   res.json(task);
+});
+
+// Assign specific test to specific employee
+router.post('/assign', authenticate, (req, res) => {
+  if (req.user.role !== 'admin') return res.status(403).json({ error: 'Admins only' });
+  const { employee_id, test_id } = req.body;
+  // Save assignment in new 'assignments' table
 });
 
 module.exports = router;

@@ -1,53 +1,262 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Login</title>
+  <title>SkillSphere - Login</title>
   <link rel="stylesheet" href="styles.css">
+  <style>
+    body { 
+      margin: 0; 
+      padding: 0; 
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #48A9F8 0%, #87CEEB 50%, #98D8E8 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .auth-container {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      border-radius: 24px;
+      box-shadow: 0 20px 60px rgba(72, 169, 248, 0.3);
+      padding: 48px 40px;
+      width: 100%;
+      max-width: 420px;
+      text-align: center;
+    }
+    .logo {
+      font-size: 2.2rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #2563EB, #1E40AF);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 12px;
+    }
+    .auth-title {
+      color: #1F2937;
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .auth-subtitle {
+      color: #6B7280;
+      font-size: 1rem;
+      margin-bottom: 32px;
+      line-height: 1.6;
+    }
+    .toggle-container {
+      background: #F8FAFC;
+      border: 2px solid #E2E8F0;
+      border-radius: 50px;
+      padding: 4px;
+      display: flex;
+      margin-bottom: 28px;
+    }
+    .toggle-btn {
+      flex: 1;
+      padding: 12px 4px;
+      border: none;
+      background: none;
+      border-radius: 44px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      color: #64748B;
+    }
+    .toggle-btn.active {
+      background: linear-gradient(135deg, #3B82F6, #1D4ED8);
+      color: white;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+    }
+    .form-group {
+      margin-bottom: 20px;
+      text-align: left;
+    }
+    .form-group label {
+      display: block;
+      font-size: 14px;
+      font-weight: 500;
+      color: #374151;
+      margin-bottom: 6px;
+    }
+    input, select {
+      width: 100%;
+      padding: 14px 18px;
+      border: 2px solid #E2E8F0;
+      border-radius: 12px;
+      font-size: 16px;
+      transition: all 0.3s ease;
+      box-sizing: border-box;
+    }
+    input:focus, select:focus {
+      outline: none;
+      border-color: #3B82F6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+    .primary-btn {
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(135deg, #3B82F6, #1D4ED8);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-bottom: 20px;
+    }
+    .primary-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 24px rgba(59, 130, 246, 0.4);
+    }
+    @media (max-width: 480px) {
+      .auth-container { margin: 20px; padding: 32px 24px; }
+    }
+  </style>
 </head>
-<body class="auth">
-  <div class="auth-card">
-    <div class="auth-title">Company Task Portal</div>
-    <div class="auth-subtitle">Sign in to your employee or employer dashboard</div>
+<body>
+  <div class="auth-container">
+    <div class="logo">SkillSphere</div>
+    <div class="auth-title">Welcome Back</div>
+    <div class="auth-subtitle">Sign in to access your dashboard</div>
 
-    <form id="loginForm">
-      <input name="email" placeholder="Email"><br>
-      <input name="password" type="password" placeholder="Password"><br>
-      <button class="primary" type="submit">Login</button>
+    <div class="toggle-container">
+      <button class="toggle-btn active" onclick="toggleMode('login')">Login</button>
+      <button class="toggle-btn" onclick="toggleMode('signup')">Sign Up</button>
+    </div>
+
+    <form id="loginForm" style="display: block;">
+      <div class="form-group">
+        <label>Email</label>
+        <input name="email" type="email" placeholder="your@email.com" required>
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input name="password" type="password" placeholder="••••••••" required>
+      </div>
+      <button class="primary-btn" type="submit">Sign In</button>
     </form>
 
-    <p style="margin-top:12px; font-size:14px;">
-      New here?
-      <a href="register.html" style="color:#2563eb; text-decoration:none;">Create an account</a>
-    </p>
+    <form id="signupForm" style="display: none;">
+      <div class="form-group">
+        <label>Full Name</label>
+        <input name="name" type="text" placeholder="John Doe" required>
+      </div>
+      <div class="form-group">
+        <label>Email</label>
+        <input name="email" type="email" placeholder="your@email.com" required>
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input name="password" type="password" placeholder="••••••••" required>
+      </div>
+      <div class="form-group">
+        <label>Role</label>
+        <select name="role" required>
+          <option value="">Select role</option>
+          <option value="employee">Employee</option>
+          <option value="admin">Admin</option>
+        </select>
+      </div>
+      <button class="primary-btn" type="submit">Create Account</button>
+    </form>
   </div>
 
   <script>
-    document.getElementById("loginForm").addEventListener("submit", async e => {
+    const API_URL = 'http://localhost:3000/api/auth';
+
+    function toggleMode(mode) {
+      const loginForm = document.getElementById('loginForm');
+      const signupForm = document.getElementById('signupForm');
+      const loginBtn = document.querySelector('.toggle-btn:nth-child(1)');
+      const signupBtn = document.querySelector('.toggle-btn:nth-child(2)');
+      
+      if (mode === 'login') {
+        loginForm.style.display = 'block';
+        signupForm.style.display = 'none';
+        loginBtn.classList.add('active');
+        signupBtn.classList.remove('active');
+        document.querySelector('.auth-title').textContent = 'Welcome Back';
+        document.querySelector('.auth-subtitle').textContent = 'Sign in to access your dashboard';
+      } else {
+        loginForm.style.display = 'none';
+        signupForm.style.display = 'block';
+        loginBtn.classList.remove('active');
+        signupBtn.classList.add('active');
+        document.querySelector('.auth-title').textContent = 'Create Account';
+        document.querySelector('.auth-subtitle').textContent = 'Join SkillSphere today';
+      }
+    }
+
+    // Login handler
+    document.getElementById('loginForm').addEventListener('submit', async e => {
       e.preventDefault();
       const f = e.target;
       const body = {
         email: f.email.value,
         password: f.password.value
       };
-      const res = await fetch("http://localhost:3000/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body)
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        alert(data.message || "Error");
-        return;
+      
+      try {
+        const res = await fetch(`${API_URL}/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+        const data = await res.json();
+        
+        if (!res.ok) {
+          alert(data.message || 'Login failed');
+          return;
+        }
+        
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('role', data.role);
+        localStorage.setItem('name', data.name);
+        
+        window.location = data.role === 'admin' ? 'employer-dashboard.html' : 'employee-dashboard.html';
+      } catch (err) {
+        console.error('Login error:', err);
+        alert('Network error. Check if the server is running on port 3000.');
       }
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("role", data.role);
-      if (data.role === "employer") {
-        window.location = "employer-dashboard.html";
-      } else {
-        window.location = "employee-dashboard.html";
+    });
+
+    // Signup handler
+    document.getElementById('signupForm').addEventListener('submit', async e => {
+      e.preventDefault();
+      const f = e.target;
+      const body = {
+        name: f.name.value,
+        email: f.email.value,
+        password: f.password.value,
+        role: f.role.value
+      };
+      
+      try {
+        // CHANGED: Pointing to /signup instead of /register to match your Auth.js
+        const res = await fetch(`${API_URL}/signup`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+        const data = await res.json();
+        
+        if (!res.ok) {
+          alert(data.message || 'Signup failed');
+          return;
+        }
+        
+        alert('Account created! Please login.');
+        toggleMode('login');
+        f.reset();
+      } catch (err) {
+        console.error('Signup error:', err);
+        alert('Network error. Check if the server is running on port 3000.');
       }
     });
   </script>
 </body>
 </html>
-

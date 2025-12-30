@@ -1,12 +1,132 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Portal Home</title>
-  <link rel ="stylesheet" href="styles.css">
+  <title>SkillSphere - Employee Testing Platform</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .landing {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 20px;
+    }
+    .logo {
+      font-size: 3.5rem;
+      font-weight: 800;
+      background: linear-gradient(45deg, #fff, #f0f9ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 20px;
+      text-shadow: 0 4px 20px rgba(255,255,255,0.3);
+    }
+    .tagline {
+      font-size: 1.3rem;
+      margin-bottom: 40px;
+      opacity: 0.95;
+      max-width: 600px;
+      line-height: 1.6;
+    }
+    .cta-buttons {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 30px;
+    }
+    .btn {
+      padding: 15px 35px;
+      border: none;
+      border-radius: 50px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+    .btn-primary {
+      background: linear-gradient(45deg, #4f46e5, #7c3aed);
+      color: white;
+    }
+    .btn-secondary {
+      background: rgba(255,255,255,0.2);
+      color: white;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.3);
+    }
+    .btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+    }
+    .features {
+      display: flex;
+      gap: 30px;
+      max-width: 1000px;
+      margin-top: 60px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .feature {
+      background: rgba(255,255,255,0.1);
+      padding: 25px;
+      border-radius: 20px;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.2);
+      flex: 1;
+      min-width: 250px;
+      transition: transform 0.3s ease;
+    }
+    .feature:hover {
+      transform: translateY(-5px);
+    }
+    .feature-icon {
+      font-size: 2.5rem;
+      margin-bottom: 15px;
+    }
+    @media (max-width: 768px) {
+      .cta-buttons { flex-direction: column; align-items: center; }
+      .features { flex-direction: column; }
+      .logo { font-size: 2.5rem; }
+    }
+  </style>
 </head>
 <body>
-  <h1>Welcome</h1>
-  <a href="register.html">Register</a><br>
-  <a href="login.html">Login</a>
+  <div class="landing">
+    <div class="logo">SkillSphere</div>
+    <h1 style="font-size: 2.5rem; margin-bottom: 20px;">Employee Testing Platform</h1>
+    <p class="tagline">
+      Create tests, assign assessments, track performance, and build leaderboards. 
+      Empower your team with skill-based evaluations.
+    </p>
+
+    <div class="cta-buttons">
+      <a href="login.html" class="btn btn-primary">Get Started → Login</a>
+      <a href="register.html" class="btn btn-secondary">Create Account</a>
+    </div>
+
+    <div class="features">
+      <div class="feature">
+        <div class="feature-icon">📝</div>
+        <h3>Create Tests</h3>
+        <p>Design multiple-choice assessments with automatic scoring.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">👥</div>
+        <h3>Assign & Track</h3>
+        <p>Assign tests to specific employees and monitor completion.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">🏆</div>
+        <h3>Leaderboards</h3>
+        <p>Real-time rankings show top performers for each test.</p>
+      </div>
+    </div>
+  </div>
 </body>
 </html>
